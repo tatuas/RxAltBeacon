@@ -2,19 +2,23 @@
 
 [![Release](https://jitpack.io/v/tatuas/RxAltBeacon.svg)](https://jitpack.io/#tatuas/RxAltBeacon)
 
+# Requirements
+- RxJava2
+- Kotlin
+
 # Installation
 
 ```gradle
 allprojects {
     repositories {
-        maven { url 'https://jitpack.io' }
+        maven { url "https://jitpack.io" }
     }
 }
 ```
 
 ```gradle
 dependencies {
-    compile 'com.github.tatuas:RxAltBeacon:$LATEST_VERSON'
+    implementation "com.github.tatuas:RxAltBeacon:$LATEST_VERSON"
 }
 ```
 

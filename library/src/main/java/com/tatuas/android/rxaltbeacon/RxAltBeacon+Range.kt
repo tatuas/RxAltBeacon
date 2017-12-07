@@ -11,7 +11,10 @@ fun RxAltBeacon.range(region: Region = RegionConstants.ALL,
     val rangeSubject = PublishSubject.create<Range>()
 
     return bindBeaconManager()
-            .doOnCancel { beaconManager.stopRangingBeaconsInRegion(region) }
+            .doOnCancel {
+                beaconManager.stopRangingBeaconsInRegion(region)
+                beaconManager.removeAllRangeNotifiers()
+            }
             .flatMap {
                 beaconManager.addRangeNotifier { beacons, region ->
                     rangeSubject.onNext(Range(beacons.toList(), region))

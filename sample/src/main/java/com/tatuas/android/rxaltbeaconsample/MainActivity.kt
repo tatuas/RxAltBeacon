@@ -38,17 +38,17 @@ class MainActivity : AppCompatActivity() {
                     this@MainActivity, LinearLayoutManager.VERTICAL, false)
         }
 
-        RxAltBeacon.Builder(this)
-                .addBeaconParsers(BeaconParserConstants.I_BEACON)
+        val rxAltBeacon = RxAltBeacon.Builder(this)
+                .beaconParsers(BeaconParserConstants.I_BEACON)
                 .intervalSeconds(5)
                 .build()
-                .range()
+
+        rxAltBeacon.range()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeBy(
                         onNext = {
-                            mainAdapter.addAll(
-                                    it.beacons.joinToString(separator = "\n") { "{$it}" })
+                            mainAdapter.addAll(it.beacons.joinToString(separator = "\n") { "{$it}" })
                         },
                         onError = {
                             Toast.makeText(this@MainActivity, it.toString(), Toast.LENGTH_LONG).show()

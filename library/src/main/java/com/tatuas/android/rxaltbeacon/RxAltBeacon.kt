@@ -19,7 +19,7 @@ class RxAltBeacon private constructor(private val appContext: Context,
         fun with(context: Context) = RxAltBeacon.Builder(context).build()
     }
 
-    internal val beaconManager: BeaconManager = BeaconManager.getInstanceForApplication(appContext)
+    internal val beaconManager = BeaconManager.getInstanceForApplication(appContext)
             .apply {
                 beaconParsers.addAll(parsers)
                 foregroundBetweenScanPeriod = TimeUnit.SECONDS.toMillis(intervalSeconds)
@@ -31,12 +31,12 @@ class RxAltBeacon private constructor(private val appContext: Context,
         val beaconConsumer = object : BeaconConsumer {
             override fun getApplicationContext() = appContext
 
+            override fun bindService(intent: Intent?, conn: ServiceConnection?, flag: Int) =
+                    applicationContext.bindService(intent, conn, flag)
+
             override fun unbindService(conn: ServiceConnection?) {
                 applicationContext.unbindService(conn)
             }
-
-            override fun bindService(intent: Intent?, conn: ServiceConnection?, flag: Int) =
-                    applicationContext.bindService(intent, conn, flag)
 
             override fun onBeaconServiceConnect() {
                 bindBeaconManagerSubject.onNext(true)
@@ -47,11 +47,7 @@ class RxAltBeacon private constructor(private val appContext: Context,
         beaconManager.bind(beaconConsumer)
 
         return bindBeaconManagerSubject.toFlowable(BackpressureStrategy.LATEST)
-                .doOnCancel {
-                    beaconManager.removeAllRangeNotifiers()
-                    beaconManager.removeAllMonitorNotifiers()
-                    beaconManager.unbind(beaconConsumer)
-                }
+                .doOnCancel { beaconManager.unbind(beaconConsumer) }
     }
 
     class Builder constructor(private val context: Context) {
@@ -62,7 +58,7 @@ class RxAltBeacon private constructor(private val appContext: Context,
 
         fun intervalSeconds(value: Int) = apply { intervalSeconds = value }
 
-        fun addBeaconParsers(vararg value: BeaconParser) = apply { beaconParsers.addAll(value) }
+        fun beaconParsers(vararg value: BeaconParser) = apply { beaconParsers.addAll(value) }
 
         fun build() = RxAltBeacon(context, beaconParsers.toList(), intervalSeconds.toLong())
     }
